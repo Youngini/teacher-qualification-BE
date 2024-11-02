@@ -76,7 +76,7 @@ public class UserService {
         return new UserInfo(user.getNickname(), user.getPassword(), user.getPhoneNumber(), user.getEmail(), user.getName());
     }
 
-    private User findUser() {
+    public User findUser() {
         String email = (String) RequestContextHolder.getRequestAttributes().getAttribute("email", RequestAttributes.SCOPE_REQUEST);
         return userRepository.findByEmail(email);
     }

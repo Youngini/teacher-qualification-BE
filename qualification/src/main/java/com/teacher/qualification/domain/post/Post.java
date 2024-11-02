@@ -2,6 +2,8 @@ package com.teacher.qualification.domain.post;
 
 import com.teacher.qualification.domain.user.User;
 import com.teacher.qualification.domain.comment.Comment;
+import com.teacher.qualification.dto.post.PostCreateDto;
+import com.teacher.qualification.dto.post.PostUpdateRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,5 +34,33 @@ public class Post {
     //private String imageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    public Post(PostCreateDto request, User user) {
+        this.user = user;
+        this.title = request.title();
+        this.content = request.content();
+    }
+
+    public Post() {
+
+    }
+
+    public void update(PostUpdateRequestDto requestDto) {
+        this.title = requestDto.title();
+        this.content = requestDto.content();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    // 엔티티가 업데이트될 때 updatedAt 자동 설정
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
 }

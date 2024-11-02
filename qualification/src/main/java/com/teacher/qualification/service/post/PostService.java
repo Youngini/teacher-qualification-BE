@@ -8,6 +8,7 @@ import com.teacher.qualification.dto.post.PostListDto;
 import com.teacher.qualification.dto.post.PostUpdateRequestDto;
 import com.teacher.qualification.repository.post.PostRepository;
 import com.teacher.qualification.repository.user.UserRepository;
+import com.teacher.qualification.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +20,7 @@ import java.util.stream.Collectors;
 public class PostService {
     @Autowired
     private PostRepository postRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     // 게시글 반환
     public List<PostListDto> getAllPosts() {
@@ -36,17 +35,8 @@ public class PostService {
 
     // 게시글 작성
     public Post createPost(PostCreateDto request) {
-        User user = userRepository.findById(request.getUserId()).orElseThrow(
-                () -> new RuntimeException("사용자를 찾을 수 없습니다.")
-        );
-
-        Post post = new Post();
-        post.setTitle(request.getTitle());
-        post.setContent(request.getContent());
-        post.setUser(user);
-        post.setCreatedAt(LocalDateTime.now());
-        post.setUpdatedAt(LocalDateTime.now());
-
+        User user = userService.findUser();
+        Post post = new Post(request, user);
         return postRepository.save(post);
     }
 
@@ -62,16 +52,15 @@ public class PostService {
     }
 
     // 게시글 수정
-    public void updatePost(Long postId, Long userId, PostUpdateRequestDto requestDto) {
+    public void updatePost(Long postId, PostUpdateRequestDto requestDto) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. postId=" + postId));
+        User user = userService.findUser();
 
-        if (!post.getUser().getId().equals(userId)) {
-            throw new IllegalArgumentException("수정 권한이 없습니다. userId=" + userId);
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("수정 권한이 없습니다.");
         }
-        post.setUpdatedAt(LocalDateTime.now());
-        post.setTitle(requestDto.getTitle());
-        post.setContent(requestDto.getContent());
+        post.update(requestDto);
         postRepository.save(post);
     }
 
@@ -79,6 +68,12 @@ public class PostService {
     public void deletePost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
+        User user = userService.findUser();
+
+        if (!post.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("삭제 권한이 없습니다.");
+        }
+
         postRepository.delete(post);
     }
 }

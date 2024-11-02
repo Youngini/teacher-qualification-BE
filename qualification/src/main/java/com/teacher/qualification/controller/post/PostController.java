@@ -44,10 +44,10 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    @PutMapping("/{post_id}/{user_id}")
+    @PutMapping("/{post_id}")
     @Operation(summary = "특정 게시글 수정")
-    public ResponseEntity<Void> updatePost(@PathVariable Long post_id, @PathVariable Long user_id, @RequestBody PostUpdateRequestDto requestDto) {
-        postService.updatePost(post_id, user_id, requestDto);
+    public ResponseEntity<Void> updatePost(@PathVariable Long post_id, @RequestBody PostUpdateRequestDto requestDto) {
+        postService.updatePost(post_id, requestDto);
         return ResponseEntity.ok().build();
     }
 
