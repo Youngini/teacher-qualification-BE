@@ -5,12 +5,9 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class PostCreateDto {
-
-    private Long userId;
-    private String title;
-    private String content;
-    private String imageUrl;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+public record PostCreateDto(
+        String title,
+        String content,
+        String imageUrl
+) {
 }
