@@ -32,9 +32,9 @@ public class PostController {
 
     @PostMapping
     @Operation(summary = "게시글 생성")
-    public ResponseEntity<Post> createPost(@RequestBody PostCreateDto request) {
-        Post savedPost = postService.createPost(request);
-        return ResponseEntity.ok(savedPost);
+    public ResponseEntity<Void> createPost(@RequestBody PostCreateDto request) {
+        postService.createPost(request);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{id}")

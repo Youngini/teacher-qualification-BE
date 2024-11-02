@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 public class PostService {
     @Autowired
     private PostRepository postRepository;
+    @Autowired
     private UserService userService;
 
     // 게시글 반환
@@ -32,10 +33,10 @@ public class PostService {
     }
 
     // 게시글 작성
-    public Post createPost(PostCreateDto request) {
+    public void createPost(PostCreateDto request) {
         User user = userService.findUser();
         Post post = new Post(request, user);
-        return postRepository.save(post);
+        postRepository.save(post);
     }
 
     // 특정 게시물 조희
