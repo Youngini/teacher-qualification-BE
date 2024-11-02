@@ -3,6 +3,7 @@ package com.teacher.qualification.service.auth;
 import com.teacher.qualification.domain.user.User;
 import com.teacher.qualification.dto.auth.SignupRequestDto;
 import com.teacher.qualification.repository.user.UserRepository;
+import com.teacher.qualification.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.security.SecureRandom;
 public class AuthService {
 
     private final UserRepository userRepository;
+    private final JwtService jwtService;
     //private final PasswordEncoder passwordEncoder;
 
     // 회원가입
@@ -44,11 +46,11 @@ public class AuthService {
     }
 
     // 로그인
-    public Long login(String email, String password) {
+    public String login(String email, String password) {
         User user = userRepository.findByEmail(email);
 
         if (user != null && user.getPassword().equals(password)) {
-            return user.getId();
+            return jwtService.generateToken(email);
         } else {
             return null; // 사용자가 존재하지 않거나 비밀번호가 일치하지 않는 경우 로그인 실패
         }
@@ -74,7 +76,7 @@ public class AuthService {
     public String resetUserPasswordByEmailAndName(String email, String name) {
         return userRepository.findByNameAndEmail(name, email)
                 .map(user -> {
-                    String newPassword = generatePassword(5); // 5글자 영문+숫자 비밀번호 생성
+                    String newPassword = generatePassword(6); // 5글자 영문+숫자 비밀번호 생성
                     user.setPassword(newPassword); // 새 비밀번호 설정
                     userRepository.save(user); // 업데이트된 사용자 정보 저장
                     return newPassword;

@@ -35,12 +35,10 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "사용자 로그인")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
-        Long userId = authService.login(loginDto.getEmail(), loginDto.getPassword());
-        if (userId != null) {
-            // 로그인 성공: 사용자 ID 반환
-            return ResponseEntity.ok(userId);
+        String token = authService.login(loginDto.getEmail(), loginDto.getPassword());
+        if (token != null) {
+            return ResponseEntity.ok(token);
         } else {
-            // 로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다.
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다.");
         }
     }
@@ -66,8 +64,5 @@ public class AuthController {
             return ResponseEntity.status(401).body("사용자 정보가 일치하지 않습니다.");
         }
     }
-
-
-
 }
 
