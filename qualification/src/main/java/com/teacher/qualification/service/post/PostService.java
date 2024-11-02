@@ -7,12 +7,10 @@ import com.teacher.qualification.dto.post.PostDetailDto;
 import com.teacher.qualification.dto.post.PostListDto;
 import com.teacher.qualification.dto.post.PostUpdateRequestDto;
 import com.teacher.qualification.repository.post.PostRepository;
-import com.teacher.qualification.repository.user.UserRepository;
 import com.teacher.qualification.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,8 +51,7 @@ public class PostService {
 
     // 게시글 수정
     public void updatePost(Long postId, PostUpdateRequestDto requestDto) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. postId=" + postId));
+        Post post = findPostByPostId(postId);
         User user = userService.findUser();
 
         if (!post.getUser().getId().equals(user.getId())) {
@@ -65,9 +62,8 @@ public class PostService {
     }
 
     // 게시글 삭제
-    public void deletePost(Long id) {
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
+    public void deletePost(Long postId) {
+        Post post = findPostByPostId(postId);
         User user = userService.findUser();
 
         if (!post.getUser().getId().equals(user.getId())) {
@@ -75,6 +71,11 @@ public class PostService {
         }
 
         postRepository.delete(post);
+    }
+
+    public Post findPostByPostId(Long postId) {
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. postId=" + postId));
     }
 }
 

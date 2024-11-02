@@ -67,9 +67,14 @@ public class UserService {
         return result;
     }
 
-    public boolean isLogin(Long userId) {
-        return userRepository.existsById(userId);
+    public boolean isLogin() {
+        User user = findUser();
+        if (user == null) {
+            return false; // 사용자가 로그인하지 않은 경우
+        }
+        return userRepository.existsById(user.getId());
     }
+
 
     public UserInfo getUserInfo() {
         User user = findUser();
@@ -78,6 +83,9 @@ public class UserService {
 
     public User findUser() {
         String email = (String) RequestContextHolder.getRequestAttributes().getAttribute("email", RequestAttributes.SCOPE_REQUEST);
+        if (email == null) {
+            return null;
+        }
         return userRepository.findByEmail(email);
     }
 }
