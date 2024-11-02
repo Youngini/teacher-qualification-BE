@@ -5,7 +5,6 @@ import com.teacher.qualification.dto.post.PostCreateDto;
 import com.teacher.qualification.dto.post.PostDetailDto;
 import com.teacher.qualification.dto.post.PostListDto;
 import com.teacher.qualification.dto.post.PostUpdateRequestDto;
-import com.teacher.qualification.repository.post.PostRepository;
 import com.teacher.qualification.service.post.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,6 @@ import java.util.List;
 @RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
-    @Autowired
-    private PostRepository postRepository;
 
     @Autowired
     private PostService postService;
