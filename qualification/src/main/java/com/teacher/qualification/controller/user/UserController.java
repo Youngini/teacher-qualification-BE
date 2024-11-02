@@ -15,16 +15,17 @@ import java.util.Map;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/mypage")
 @RequiredArgsConstructor
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/{id}")
+    @GetMapping("")
     @Operation(summary = "개인정보 불러오기")
-    public ResponseEntity<UserInfo> getUserById(@PathVariable("id") Long id) {
-        UserInfo userInfo = userService.findUserById(id);
+    public ResponseEntity<UserInfo> getUserById() {
+
+        UserInfo userInfo = userService.getUserInfo();
         if (userInfo != null) {
             // 사용자 정보를 성공적으로 찾았을 경우 HTTP 상태 코드 200(OK)와 함께 사용자 정보 반환
             return ResponseEntity.ok(userInfo);
@@ -34,17 +35,17 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("")
     @Operation(summary = "개인정보 수정")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody UserUpdateDto userUpdateDto) {
-        User updatedUser = userService.updateUser(id, userUpdateDto);
+    public ResponseEntity<User> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
+        User updatedUser = userService.updateUser(userUpdateDto);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("")
     @Operation(summary = "사용자 삭제")
-    public ResponseEntity<?> deleteUserById(@PathVariable("id") Long id) {
-        boolean isDeleted = userService.deleteUserById(id);
+    public ResponseEntity<?> deleteUserById() {
+        boolean isDeleted = userService.deleteUserById();
         if (isDeleted) {
             // 삭제 성공: HTTP 상태 코드 200(OK) 반환
             return ResponseEntity.ok().body("사용자가 성공적으로 삭제되었습니다.");
@@ -54,12 +55,11 @@ public class UserController {
         }
     }
 
-    @GetMapping("/answers/{userId}")
+    @GetMapping("/answers")
     @Operation(summary = "사용자가 맞은 문제, 틀린 문제 반환")
-    public ResponseEntity<?> getUserAnswers(@PathVariable Long userId) {
-        Map<String, Set<Long>> result = userService.getUserQuestionHistory(userId);
+    public ResponseEntity<?> getUserAnswers() {
+        Map<String, Set<Long>> result = userService.getUserQuestionHistory();
         return ResponseEntity.ok(result);
     }
-
 }
 

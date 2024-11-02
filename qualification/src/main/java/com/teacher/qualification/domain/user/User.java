@@ -3,6 +3,7 @@ package com.teacher.qualification.domain.user;
 import com.teacher.qualification.domain.comment.Comment;
 import com.teacher.qualification.domain.post.Post;
 import com.teacher.qualification.domain.question.Question;
+import com.teacher.qualification.dto.user.UserUpdateDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,5 +42,13 @@ public class User {
 
     public void updatePassword(String tempPassword) {
         this.password = tempPassword;
+    }
+
+    public void update(UserUpdateDto userUpdateDto) {
+        this.nickname = userUpdateDto.nickname();
+        this.password = userUpdateDto.password();
+        this.phoneNumber = userUpdateDto.phoneNumber();
+        this.email = userUpdateDto.email();
+        this.name = userUpdateDto.name();
     }
 }

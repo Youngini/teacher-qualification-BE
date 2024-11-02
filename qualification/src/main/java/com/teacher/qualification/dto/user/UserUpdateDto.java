@@ -1,14 +1,10 @@
 package com.teacher.qualification.dto.user;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class UserUpdateDto {
-    private String nickname;
-    private String password;
-    private String phoneNumber;
-    private String email;
-    private String name;
+public record UserUpdateDto(
+        String nickname,
+        String password,
+        String phoneNumber,
+        String email,
+        String name
+) {
 }
