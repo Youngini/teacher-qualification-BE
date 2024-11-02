@@ -39,4 +39,7 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<AnswerHistory> answerHistories = new ArrayList<>();
 
+    public void updatePassword(String tempPassword) {
+        this.password = tempPassword;
+    }
 }

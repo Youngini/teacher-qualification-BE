@@ -5,7 +5,11 @@ import com.teacher.qualification.dto.auth.SignupRequestDto;
 import com.teacher.qualification.repository.user.UserRepository;
 import com.teacher.qualification.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 
@@ -15,6 +19,9 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final JavaMailSender emailSender;
+
+    private static final int TEMP_PASSWORD_LENGTH = 8;
     //private final PasswordEncoder passwordEncoder;
 
     // 회원가입
@@ -62,44 +69,33 @@ public class AuthService {
                 .orElse(null); // 사용자를 찾지 못한 경우 null 반환
     }
 
-/*    public String resetUserPasswordByEmailAndName(String email, String name) {
-        return userRepository.findByNameAndEmail(name, email)
-                .map(user -> {
-                    String newPassword = UUID.randomUUID().toString(); // 간단한 예시로 UUID 사용. 실제로는 더 안전한 방법 사용 권장
-                    user.setPassword(newPassword); // 새 비밀번호 설정
-                    userRepository.save(user); // 업데이트된 사용자 정보 저장
-                    return newPassword;
-                })
-                .orElse(null); // 사용자를 찾지 못한 경우 null 반환
-    }*/
-
-    public String resetUserPasswordByEmailAndName(String email, String name) {
-        return userRepository.findByNameAndEmail(name, email)
-                .map(user -> {
-                    String newPassword = generatePassword(6); // 5글자 영문+숫자 비밀번호 생성
-                    user.setPassword(newPassword); // 새 비밀번호 설정
-                    userRepository.save(user); // 업데이트된 사용자 정보 저장
-                    return newPassword;
-                })
-                .orElse(null); // 사용자를 찾지 못한 경우 null 반환
+    @Transactional
+    public String createNewPassword(String email, String name) {
+        User user = userRepository.findByEmail(email);
+        String tempPassword = generateRandomPassword();
+        user.updatePassword(tempPassword);
+        sendEmail(user.getEmail(), tempPassword);
+        return tempPassword;
     }
 
-    private String generatePassword(int length) {
+    private String generateRandomPassword() {
         SecureRandom random = new SecureRandom();
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            if (random.nextBoolean()) {
-                // 영문 (대문자 또는 소문자)
-                char letter = (char) (random.nextBoolean() ? 'A' + random.nextInt(26) : 'a' + random.nextInt(26));
-                sb.append(letter);
-            } else {
-                // 숫자
-                char digit = (char) ('0' + random.nextInt(10));
-                sb.append(digit);
-            }
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder password = new StringBuilder(TEMP_PASSWORD_LENGTH);
+        for (int i = 0; i < TEMP_PASSWORD_LENGTH; i++) {
+            password.append(characters.charAt(random.nextInt(characters.length())));
         }
-        return sb.toString();
+        return password.toString();
     }
 
+    @Async
+    public void sendEmail(String to, String temporaryPassword) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject("[우리 앱 이름 뭐더라] 비밀번호 재발급 안내");
+        message.setText(
+                "새로 생성된 비밀번호 입니다: " + temporaryPassword + "\n\n해당 비밀번호로 로그인 후 반드시 비밀번호를 변경해 주시기 바랍니다.");
+        emailSender.send(message);
+    }
 }
 

@@ -57,7 +57,7 @@ public class AuthController {
     @PostMapping("/resetPassword")
     @Operation(summary = "사용자 비밀번호 재설정")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDto request) {
-        String password = authService.resetUserPasswordByEmailAndName(request.getEmail(), request.getName());
+        String password = authService.createNewPassword(request.getEmail(), request.getName());
         if (password != null) {
             return ResponseEntity.ok(password);
         } else {
