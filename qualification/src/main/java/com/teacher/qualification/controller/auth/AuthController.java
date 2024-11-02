@@ -1,6 +1,5 @@
 package com.teacher.qualification.controller.auth;
 
-import com.teacher.qualification.domain.user.User;
 import com.teacher.qualification.dto.auth.FindEmailDto;
 import com.teacher.qualification.dto.auth.LoginDto;
 import com.teacher.qualification.dto.auth.ResetPasswordDto;
@@ -27,14 +26,14 @@ public class AuthController {
 
     @PostMapping("/join")
     @Operation(summary = "사용자 회원가입")
-    public ResponseEntity<User> signup(@RequestBody SignupRequestDto signupRequest) {
-        User savedUser = authService.signup(signupRequest);
-        return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
+    public ResponseEntity<Void> signup(@RequestBody SignupRequestDto signupRequest) {
+        authService.signup(signupRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/login")
     @Operation(summary = "사용자 로그인")
-    public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
         String token = authService.login(loginDto.getEmail(), loginDto.getPassword());
         if (token != null) {
             return ResponseEntity.ok(token);
@@ -56,12 +55,12 @@ public class AuthController {
 
     @PostMapping("/resetPassword")
     @Operation(summary = "사용자 비밀번호 재설정")
-    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDto request) {
+    public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDto request) {
         String password = authService.createNewPassword(request.getEmail(), request.getName());
         if (password != null) {
-            return ResponseEntity.ok(password);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
-            return ResponseEntity.status(401).body("사용자 정보가 일치하지 않습니다.");
+            return ResponseEntity.status(401).build();
         }
     }
 }
