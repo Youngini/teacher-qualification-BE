@@ -2,29 +2,15 @@ package com.teacher.qualification.configuration;
 
 import com.teacher.qualification.component.AuthorizationInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@ControllerAdvice
+@Configuration
 public class WebConfig implements WebMvcConfigurer {
-    private final AuthorizationInterceptor authorizationInterceptor;
 
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/**")
-                        .allowedOrigins("http://13.124.169.29")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
-                        .allowedHeaders("*")
-                        .allowCredentials(true);
-            }
-        };
-    }
+    private final AuthorizationInterceptor authorizationInterceptor;
 
     @Autowired
     public WebConfig(AuthorizationInterceptor authorizationInterceptor) {
@@ -32,7 +18,26 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")  // 모든 도메인 허용
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "HEAD", "PATCH")
+                .allowedHeaders("*")
+                .allowCredentials(true);
+    }
+
+    @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(authorizationInterceptor).addPathPatterns("/**");
+        registry.addInterceptor(authorizationInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/",           // 메인 경로 제외
+                        "/error",      // 에러 경로 제외
+                        "/swagger-ui/**",  // Swagger UI 제외
+                        "/v3/api-docs/**", // Swagger API 문서 경로 제외
+                        "/favicon.ico",
+                        "/auth/**"// favicon 경로 제외
+                );
     }
 }
+
