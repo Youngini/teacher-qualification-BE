@@ -30,33 +30,33 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
-    @PostMapping("/{userId}/{postId}")
+    @PostMapping("/{postId}")
     @Operation(summary = "게시판 댓글 작성하기")
-    public ResponseEntity<String> createComment(@PathVariable Long userId , @PathVariable Long postId, @RequestBody WriteCommentDto comment) {
-        boolean isLoggedIn = userService.isLogin(userId);
+    public ResponseEntity<String> createComment(@PathVariable Long postId, @RequestBody WriteCommentDto comment) {
+        boolean isCommented = commentService.createComment(postId, comment);
 
-        if (!isLoggedIn) {
+        if (!isCommented) {
             return ResponseEntity.status(401).body("로그인을 하고 댓글을 작성해주세요");
         }
 
-        commentService.createComment(userId, postId, comment);
+
         return ResponseEntity.status(201).body("댓글이 성공적으로 작성되었습니다");
     }
 
-    @PutMapping("/{userId}/{commentId}")
+    @PutMapping("/{commentId}")
     @Operation(summary = "게시판 댓글 수정하기")
-    public ResponseEntity<String> updateComment(@PathVariable Long userId, @PathVariable Long commentId, @RequestBody ModifyCommentDto commentDto){
-        boolean completed = commentService.updateComment(userId, commentId, commentDto);
+    public ResponseEntity<String> updateComment(@PathVariable Long commentId, @RequestBody ModifyCommentDto commentDto){
+        boolean completed = commentService.updateComment(commentId, commentDto);
         if (completed) {
             return ResponseEntity.status(201).body("댓글이 성공적으로 수정되었습니다.");
         }
         return ResponseEntity.status(401).body("댓글을 수정할 권한이 없습니다.");
     }
 
-    @DeleteMapping("/{userId}/{commentId}")
+    @DeleteMapping("/{commentId}")
     @Operation(summary = "게시판 댓글 삭제하기")
-    public ResponseEntity<String> deleteComment(@PathVariable Long userId, @PathVariable Long commentId){
-        boolean completed = commentService.deleteComment(userId, commentId);
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId){
+        boolean completed = commentService.deleteComment(commentId);
         if (completed) {
             return ResponseEntity.status(201).body("댓글이 성공적으로 삭제되었습니다.");
         }

@@ -2,12 +2,15 @@ package com.teacher.qualification.service.comment;
 
 import com.teacher.qualification.domain.comment.Comment;
 import com.teacher.qualification.domain.post.Post;
+import com.teacher.qualification.domain.user.User;
 import com.teacher.qualification.dto.comment.CommentInfo;
 import com.teacher.qualification.dto.comment.ModifyCommentDto;
 import com.teacher.qualification.dto.comment.WriteCommentDto;
 import com.teacher.qualification.repository.comment.CommentRepository;
 import com.teacher.qualification.repository.post.PostRepository;
 import com.teacher.qualification.repository.user.UserRepository;
+import com.teacher.qualification.service.post.PostService;
+import com.teacher.qualification.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +25,9 @@ public class CommentService {
     private UserRepository userRepository;
     @Autowired
     private PostRepository postRepository;
+
+    private UserService userService;
+    private PostService postService;
 
     // 댓글 불러오기
     public List<CommentInfo> getAllComment(Long postId) {
@@ -48,30 +54,34 @@ public class CommentService {
     }
 
     // 댓글 작성
-    public void createComment(Long userId, Long postId, WriteCommentDto commentDto) {
-        Comment comment = new Comment();
-
-        comment.setUser(userRepository.getReferenceById(userId));
-        comment.setPost(postRepository.getReferenceById(postId));
-        comment.setComment(commentDto.getComment());
+    public boolean createComment(Long postId, WriteCommentDto commentDto) {
+        if(!userService.isLogin()){
+            return false;
+        }
+        User user = userService.findUser();
+        Post post = postService.findPostByPostId(postId);
+        Comment comment = new Comment(user, post, commentDto);
         commentRepository.save(comment);
+        return true;
     }
 
     // 댓글 수정
-    public boolean updateComment(Long userId, Long commentId, ModifyCommentDto commentDto) {
+    public boolean updateComment(Long commentId, ModifyCommentDto commentDto) {
         Comment comment = commentRepository.getReferenceById(commentId);
-        if(comment.getUser().getId() != userId){
+        User user = userService.findUser();
+        if(!comment.getUser().getId().equals(user.getId())){
             return false;
         }
-        comment.setComment(commentDto.getComment());
+        comment.setComment(commentDto.comment());
         commentRepository.save(comment);
         return true;
     }
 
     // 댓글 삭제
-    public boolean deleteComment(Long userId, Long commentId) {
+    public boolean deleteComment(Long commentId) {
         Comment comment = commentRepository.getReferenceById(commentId);
-        if(comment.getUser().getId() != userId){
+        User user = userService.findUser();
+        if(!comment.getUser().getId().equals(user.getId())){
             return false;
         }
         commentRepository.delete(comment);
