@@ -2,6 +2,7 @@ package com.teacher.qualification.service.auth;
 
 import com.teacher.qualification.domain.user.User;
 import com.teacher.qualification.dto.auth.SignupRequestDto;
+import com.teacher.qualification.dto.auth.Token;
 import com.teacher.qualification.repository.user.UserRepository;
 import com.teacher.qualification.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +24,6 @@ public class AuthService {
     private final JavaMailSender emailSender;
 
     private static final int TEMP_PASSWORD_LENGTH = 8;
-    //private final PasswordEncoder passwordEncoder;
 
     // 회원가입
     public User signup(SignupRequestDto signupRequest) {
@@ -37,10 +38,6 @@ public class AuthService {
             throw new IllegalArgumentException("Phone number already exists");
         }
 
-        // 비밀번호 암호화
-        //String encodedPassword = passwordEncoder.encode(signupRequest.getPassword());
-
-        // User 엔티티 생성 및 저장
         User user = User.builder()
                 .nickname(signupRequest.getNickname())
                 //.password(encodedPassword)
@@ -53,20 +50,25 @@ public class AuthService {
     }
 
     // 로그인
-    public String login(String email, String password) {
+    public Token login(String email, String password) {
         User user = userRepository.findByEmail(email);
 
         if (user != null && user.getPassword().equals(password)) {
-            return jwtService.generateToken(email);
+            return new Token(jwtService.generateToken(email));
         } else {
             return null; // 사용자가 존재하지 않거나 비밀번호가 일치하지 않는 경우 로그인 실패
         }
     }
 
     public String findUserEmailByNameAndPhoneNumber(String name, String phoneNumber) {
-        return userRepository.findByNameAndPhoneNumber(name, phoneNumber)
-                .map(User::getEmail) // User 엔티티에서 이메일 가져오기
-                .orElse(null); // 사용자를 찾지 못한 경우 null 반환
+        User user = userRepository.findByPhoneNumber(phoneNumber);
+        if (user == null) {
+            return null; // 사용자 정보를 찾지 못한 경우 null을 반환하거나 적절한 예외를 던질 수 있습니다.
+        }
+        if (user.getName().equals(name)) {
+            return user.getEmail();
+        }
+        return null;
     }
 
     @Transactional
