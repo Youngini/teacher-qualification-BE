@@ -1,9 +1,6 @@
 package com.teacher.qualification.controller.auth;
 
-import com.teacher.qualification.dto.auth.FindEmailDto;
-import com.teacher.qualification.dto.auth.LoginDto;
-import com.teacher.qualification.dto.auth.ResetPasswordDto;
-import com.teacher.qualification.dto.auth.SignupRequestDto;
+import com.teacher.qualification.dto.auth.*;
 import com.teacher.qualification.service.auth.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -28,28 +25,29 @@ public class AuthController {
     @Operation(summary = "사용자 회원가입")
     public ResponseEntity<Void> signup(@RequestBody SignupRequestDto signupRequest) {
         authService.signup(signupRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
     @Operation(summary = "사용자 로그인")
-    public ResponseEntity<String> login(@RequestBody LoginDto loginDto) {
-        String token = authService.login(loginDto.getEmail(), loginDto.getPassword());
+    public ResponseEntity<Token> login(@RequestBody LoginDto loginDto) {
+        Token token = authService.login(loginDto.getEmail(), loginDto.getPassword());
         if (token != null) {
             return ResponseEntity.ok(token);
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new Token("로그인 실패: 이메일 또는 비밀번호가 잘못되었습니다."));
         }
     }
 
     @PostMapping("/findEmail")
     @Operation(summary = "사용자 아이디 찾기")
-    public ResponseEntity<String> findUserId(@RequestBody FindEmailDto request) {
-        String email = authService.findUserEmailByNameAndPhoneNumber(request.getName(), request.getPhoneNumber());
-        if (email != null) {
+    public ResponseEntity<Email> findUserId(@RequestBody FindEmailDto request) {
+        Email email = new Email(authService.findUserEmailByNameAndPhoneNumber(request.getName(), request.getPhoneNumber()));
+        if (email.email() != null) {
             return ResponseEntity.ok(email);
         } else {
-            return ResponseEntity.status(401).body("사용자 정보가 일치하지 않습니다.");
+            return ResponseEntity.status(401).body(new Email("사용자 정보가 일치하지 않습니다."));
         }
     }
 
@@ -58,7 +56,7 @@ public class AuthController {
     public ResponseEntity<Void> resetPassword(@RequestBody ResetPasswordDto request) {
         String password = authService.createNewPassword(request.getEmail(), request.getName());
         if (password != null) {
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(401).build();
         }
