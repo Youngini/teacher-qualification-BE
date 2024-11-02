@@ -1,0 +1,44 @@
+spring:
+  application:
+    name:
+      qualification
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: poogles2s2@gmail.com
+    password: ogbe eqdi wogw mptn
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls.enable: true
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        #dialect: org.hibernate.dialect.MySQLDialect
+
+  datasource:
+    url: jdbc:h2:mem:testdb  # ???? ??
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+    h2:
+    console:
+    enabled: true  # H2 ?? ???
+
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+    #url: jdbc:mysql://localhost:3306/knu_mingle_db?serverTimezone=UTC&useSSL=false
+    #username: root
+    #password: dhtmddn123
+
+  #config:
+    #additional-location: classpath:application-secret.yml
+
+debug: true
