@@ -1,5 +1,6 @@
 package com.teacher.qualification.domain.question;
 
+import com.teacher.qualification.dto.question.request.AnswerRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,17 @@ public class Answer {
     @Column(name = "commentary", columnDefinition = "MEDIUMTEXT")
     private String commentary; // 해설
 
+    public Answer(Question question, AnswerRequestDto answerDto) {
+        this.question = question;
+        this.answers = answerDto.answers();
+        this.subjectiveAnswer = answerDto.subjectiveAnswer();
+        this.image = answerDto.image();
+        this.commentary = answerDto.commentary();
+    }
+
+    public Answer() {
+
+    }
 }
 
 

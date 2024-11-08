@@ -1,6 +1,7 @@
 package com.teacher.qualification.domain.question;
 
 import com.teacher.qualification.domain.user.User;
+import com.teacher.qualification.dto.question.request.QuestionRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,6 +41,20 @@ public class Question {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public Question(User user, QuestionRequestDto questionDto) {
+        this.user = user;
+        this.title = questionDto.title();
+        this.content = questionDto.content();
+        this.questionType = questionDto.questionType();
+        this.image = questionDto.image();
+        this.isPastExam = questionDto.isPastExam();
+
+    }
+
+    public Question() {
+
+    }
+
     @PrePersist
     protected void onCreate() {
         LocalDateTime now = LocalDateTime.now();
@@ -52,5 +67,13 @@ public class Question {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public void update(QuestionRequestDto questionRequestDto) {
+        this.title = questionRequestDto.title();
+        this.content = questionRequestDto.content();
+        this.questionType = questionRequestDto.questionType();
+        this.image = questionRequestDto.image();
+        this.isPastExam = questionRequestDto.isPastExam();
     }
 }

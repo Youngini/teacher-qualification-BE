@@ -22,6 +22,7 @@ import com.teacher.qualification.repository.question.OptionRepository;
 import com.teacher.qualification.repository.question.QuestionRepository;
 import com.teacher.qualification.repository.user.AnswerHistoryRepository;
 import com.teacher.qualification.repository.user.UserRepository;
+import com.teacher.qualification.service.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,8 @@ public class QuestionService {
     private UserRepository userRepository; // 사용자 정보를 조회하기 위해
     @Autowired
     private AnswerHistoryRepository answerHistoryRepository;
+    @Autowired
+    private UserService userService;
 
 
     public List<QuestionListDto> getAllQuestionsList() {
@@ -53,43 +56,32 @@ public class QuestionService {
     }
 
     @Transactional
-    public Question createQuestion(Long userId, QuestionRequestDto questionDto, List<OptionRequestDto> optionDtos, AnswerRequestDto answerDto) {
+    public Question createQuestion(QuestionCreateRequest request) {
         // 사용자 정보 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid user Id:" + userId));
+        User user = userService.findUser();
+        QuestionRequestDto questionDto = request.questionDto();
+        List<OptionRequestDto> optionDtos = request.optionDtos();
+        AnswerRequestDto answerDto = request.answerDto();
 
         // Question 엔티티 생성 및 저장
-        Question question = new Question();
-        question.setUser(user);
-        question.setTitle(questionDto.getTitle());
-        question.setContent(questionDto.getContent());
-        question.setQuestionType(questionDto.getQuestionType());
-        question.setImage(questionDto.getImage());
-        question.setIsPastExam(questionDto.isPastExam());
+        Question question = new Question(user, questionDto);
         questionRepository.save(question);
 
         List<Choice> choices = new ArrayList<>();
         // Option 엔티티 생성 및 저장
         for (OptionRequestDto optionDto : optionDtos) {
-            Choice choice = new Choice();
-            choice.setQuestion(question);
-            choice.setNumber(optionDto.getNumber());
-            choice.setContent(optionDto.getContent());
+            Choice choice = new Choice(question, optionDto);
             choices.add(choice);
             optionRepository.save(choice);
         }
 
         // Answer 엔티티 생성 및 저장
-        Answer answer = new Answer();
-        answer.setQuestion(question);
-        answer.setAnswers(answerDto.getAnswers());
-        answer.setSubjectiveAnswer(answerDto.getSubjectiveAnswer());
-        answer.setImage(answerDto.getImage());
-        answer.setCommentary(answerDto.getCommentary());
+        Answer answer = new Answer(question, answerDto);
         answerRepository.save(answer);
 
         return question;
     }
+
     @Transactional
     public void deleteQuestion(Long questionId, Long userId) throws IllegalAccessException {
         Question question = questionRepository.findById(questionId)
@@ -106,53 +98,50 @@ public class QuestionService {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new QuestionNotFoundException("문제 게시글을 찾을 수 없습니다. ID: " + questionId));
 
-        QuestionResponseDto questionResponseDto = new QuestionResponseDto();
-        questionResponseDto.setNickname(question.getUser().getNickname());
-        questionResponseDto.setTitle(question.getTitle());
-        questionResponseDto.setContent(question.getContent());
-        questionResponseDto.setQuestionType(question.getQuestionType());
-        questionResponseDto.setImage(question.getImage());
-        questionResponseDto.setUpdatedAt(question.getUpdatedAt());
 
         List<OptionResponseDto> options = question.getChoices().stream().map(choice -> {
-            OptionResponseDto optionResponseDto = new OptionResponseDto();
-            optionResponseDto.setOptionId(choice.getId());
-            optionResponseDto.setNumber(choice.getNumber());
-            optionResponseDto.setContent(choice.getContent());
+            OptionResponseDto optionResponseDto
+                    = new OptionResponseDto(
+                            choice.getId(),
+                            choice.getNumber(),
+                            choice.getContent()
+            );
             return optionResponseDto;
         }).collect(Collectors.toList());
 
-        questionResponseDto.setOptions(options);
+        QuestionResponseDto questionResponseDto
+                = new QuestionResponseDto(
+                question.getUser().getNickname(),
+                question.getTitle(),
+                question.getContent(),
+                question.getQuestionType(),
+                question.getImage(),
+                question.getUpdatedAt(),
+                options
+        );
 
         return questionResponseDto;
     }
 
     @Transactional
-    public void updateQuestion(Long questionId, Long userId, QuestionCreateRequest request) {
+    public void updateQuestion(Long questionId, QuestionCreateRequest request) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 id를 가진 문제가 없습니다. " + questionId));
 
+        User user = userService.findUser();
         // userId가 일치하는지 확인
-        if (!question.getUser().getId().equals(userId)) {
+        if (!question.getUser().getId().equals(user.getId())) {
             throw new UnauthorizedException("수정권한이 없습니다.");
         }
 
         // Question 객체 업데이트
-        question.setTitle(request.getQuestionDto().getTitle());
-        question.setContent(request.getQuestionDto().getContent());
-        question.setQuestionType(request.getQuestionDto().getQuestionType());
-        question.setIsPastExam(request.getQuestionDto().isPastExam());
-        question.setImage(request.getQuestionDto().getImage());
+        question.update(request.questionDto());
 
-        // 기존 옵션 삭제 로직은 위의 설정에 따라 자동으로 처리될 수 있으므로 생략됨
         question.getChoices().clear(); // 연관된 모든 Choice 엔티티를 컬렉션에서 제거
 
         // 새 옵션 추가
-        for (OptionRequestDto optionDto : request.getOptionDtos()) {
-            Choice choice = new Choice();
-            choice.setNumber(optionDto.getNumber());
-            choice.setContent(optionDto.getContent());
-            choice.setQuestion(question);
+        for (OptionRequestDto optionDto : request.optionDtos()) {
+            Choice choice = new Choice(question, optionDto);
             question.getChoices().add(choice); // 새 Choice 엔티티를 컬렉션에 추가
         }
 
@@ -163,10 +152,10 @@ public class QuestionService {
             answer.setQuestion(question);
             question.setAnswer(answer);
         }
-        answer.setAnswers(request.getAnswerDto().getAnswers());
-        answer.setSubjectiveAnswer(request.getAnswerDto().getSubjectiveAnswer());
-        answer.setImage(request.getAnswerDto().getImage());
-        answer.setCommentary(request.getAnswerDto().getCommentary());
+        answer.setAnswers(request.answerDto().answers());
+        answer.setSubjectiveAnswer(request.answerDto().subjectiveAnswer());
+        answer.setImage(request.answerDto().image());
+        answer.setCommentary(request.answerDto().commentary());
 
         // 저장
         questionRepository.save(question);
@@ -208,8 +197,8 @@ public class QuestionService {
         AnswerHistory answerHistory = new AnswerHistory();
         answerHistory.setUser(user);
         answerHistory.setQuestion(question);
-        answerHistory.setAnswers(solveRequestDto.getAnswers());
-        answerHistory.setSubjectiveAnswer(solveRequestDto.getSubjectiveAnswer());
+        answerHistory.setAnswers(solveRequestDto.answers());
+        answerHistory.setSubjectiveAnswer(solveRequestDto.subjectiveAnswer());
         answerHistory.setCorrect(isCorrect);
 
         answerHistoryRepository.save(answerHistory);
@@ -222,9 +211,9 @@ public class QuestionService {
             Set<Integer> correctAnswers = Arrays.stream(answer.getAnswers().split(","))
                     .map(Integer::parseInt)
                     .collect(Collectors.toSet());
-            return correctAnswers.equals(solveRequestDto.getAnswers());
+            return correctAnswers.equals(solveRequestDto.answers());
         } else {
-            return answer.getSubjectiveAnswer().equals(solveRequestDto.getSubjectiveAnswer());
+            return answer.getSubjectiveAnswer().equals(solveRequestDto.subjectiveAnswer());
         }
     }
 

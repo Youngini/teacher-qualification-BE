@@ -45,13 +45,9 @@ public class QuestionController {
 
     @PostMapping("/{userId}")
     @Operation(summary = "문제 게시글 작성")
-    public ResponseEntity<Question> createQuestion(@PathVariable Long userId,
-                                                   @RequestBody QuestionCreateRequest request) {
+    public ResponseEntity<Question> createQuestion(@RequestBody QuestionCreateRequest request) {
         try {
-            Question question = questionService.createQuestion(userId,
-                    request.getQuestionDto(),
-                    request.getOptionDtos(),
-                    request.getAnswerDto());
+            Question question = questionService.createQuestion(request);
             return new ResponseEntity<>(question, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
@@ -74,15 +70,14 @@ public class QuestionController {
         return ResponseEntity.ok(answer);
     }
 
-    @PutMapping("/{questionId}/{userId}")
+    @PutMapping("/{questionId}")
     @Operation(summary = "문제 수정하기")
     public ResponseEntity<Void> updateQuestion(
             @PathVariable Long questionId,
-            @PathVariable Long userId,
             @RequestBody QuestionCreateRequest request) {
 
-        questionService.updateQuestion(questionId, userId, request);
-        System.out.println(request.toString());
+        questionService.updateQuestion(questionId, request);
+
         return ResponseEntity.ok().build();
     }
 

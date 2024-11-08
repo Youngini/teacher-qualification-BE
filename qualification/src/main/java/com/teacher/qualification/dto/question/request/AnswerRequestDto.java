@@ -5,11 +5,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AnswerRequestDto {
+public record AnswerRequestDto(
+        String answers, // 정답. 복수 선택 가능하므로 "1,2"와 같은 형태로 저장
+        String subjectiveAnswer, // 주관식 정답
+        String image, // 해설 이미지
+        String commentary // 해설
+) {
 
-    private String answers; // 정답. 복수 선택 가능하므로 "1,2"와 같은 형태로 저장
-    private String subjectiveAnswer; // 주관식 정답
-    private String image; // 해설 이미지
-    private String commentary; // 해설
+
 
 }
