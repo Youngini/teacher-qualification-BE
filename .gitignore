@@ -24,3 +24,5 @@ hs_err_pid*
 replay_pid*
 
 Yeungnam-univ-app.pem
+
+/qualification/src/main/resources/application-secret.yml

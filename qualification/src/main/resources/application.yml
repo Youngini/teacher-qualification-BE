@@ -2,43 +2,34 @@ spring:
   application:
     name:
       qualification
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: poogles2s2@gmail.com
-    password: ogbe eqdi wogw mptn
-    properties:
-      mail:
-        smtp:
-          auth: true
-          timeout: 5000
-          starttls.enable: true
 
-  jpa:
+jpa:
+  hibernate:
+    ddl-auto: update
     show-sql: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-        #dialect: org.hibernate.dialect.MySQLDialect
+  database-platform: org.hibernate.dialect.MySQL8Dialect
 
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 15MB
+      max-request-size: 15MB
 
-    h2:
-    console:
-    enabled: true  # H2 ?? ???
+  config:
+    additional-location: classpath:application-secret.yml
 
-    #driver-class-name: com.mysql.cj.jdbc.Driver
-    #url: jdbc:mysql://localhost:3306/knu_mingle_db?serverTimezone=UTC&useSSL=false
-    #username: root
-    #password: dhtmddn123
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type: TRACE
 
-  #config:
-    #additional-location: classpath:application-secret.yml
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  tomcat:
+    max-http-form-post-size: 15MB
 
 debug: true
