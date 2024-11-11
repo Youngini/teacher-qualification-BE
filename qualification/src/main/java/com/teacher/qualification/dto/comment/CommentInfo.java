@@ -1,15 +1,13 @@
 package com.teacher.qualification.dto.comment;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-public class CommentInfo {
-    private Long comment_id;
-    private String content;
-    private String author;
-    private LocalDateTime create_time;
+public record CommentInfo(
+        Long author_id,
+        Long comment_id,
+        String content,
+        String author,
+        LocalDateTime create_time
+) {
+
 }

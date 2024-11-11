@@ -26,7 +26,9 @@ public class CommentService {
     @Autowired
     private PostRepository postRepository;
 
+    @Autowired
     private UserService userService;
+    @Autowired
     private PostService postService;
 
     // 댓글 불러오기
@@ -45,12 +47,12 @@ public class CommentService {
     }
 
     private CommentInfo convertToDto(Comment comment) {
-        CommentInfo commentInfo = new CommentInfo();
-        commentInfo.setComment_id(comment.getId());
-        commentInfo.setContent(comment.getComment());
-        commentInfo.setAuthor(comment.getUser().getNickname());
-        commentInfo.setCreate_time(comment.getCreatedAt());
-        return commentInfo;
+        return new CommentInfo(
+                comment.getUser().getId(),
+                comment.getId(),
+                comment.getComment(),
+                comment.getUser().getNickname(),
+                comment.getCreatedAt());
     }
 
     // 댓글 작성
@@ -61,6 +63,7 @@ public class CommentService {
         User user = userService.findUser();
         Post post = postService.findPostByPostId(postId);
         Comment comment = new Comment(user, post, commentDto);
+        System.out.println("입력한 댓글 : "+commentDto.comment());
         commentRepository.save(comment);
         return true;
     }
