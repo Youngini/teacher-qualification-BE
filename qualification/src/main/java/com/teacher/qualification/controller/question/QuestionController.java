@@ -43,12 +43,12 @@ public class QuestionController {
         return ResponseEntity.ok(questions);
     }
 
-    @PostMapping("/{userId}")
+    @PostMapping("")
     @Operation(summary = "문제 게시글 작성")
     public ResponseEntity<Question> createQuestion(@RequestBody QuestionCreateRequest request) {
         try {
             Question question = questionService.createQuestion(request);
-            return new ResponseEntity<>(question, HttpStatus.CREATED);
+            return ResponseEntity.ok(question);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
@@ -81,11 +81,11 @@ public class QuestionController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{question_id}/{user_id}")
+    @DeleteMapping("/{question_id}")
     @Operation(summary = "문제 삭제")
-    public ResponseEntity<Object> deleteQuestion(@PathVariable Long question_id, @PathVariable Long user_id) {
+    public ResponseEntity<Object> deleteQuestion(@PathVariable Long question_id) {
         try {
-            questionService.deleteQuestion(question_id, user_id);
+            questionService.deleteQuestion(question_id);
             return ResponseEntity.ok().build();
         } catch (IllegalAccessException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
@@ -94,12 +94,11 @@ public class QuestionController {
         }
     }
 
-    @PostMapping("/{question_id}/{user_id}")
+    @PostMapping("/{question_id}")
     @Operation(summary = "문제 풀기")
     public ResponseEntity<Boolean> solveQuestion(@PathVariable Long question_id,
-                                                 @PathVariable Long user_id,
                                                  @RequestBody SolveRequestDto solveRequestDto) {
-        boolean isCorrect = questionService.solveQuestion(question_id, user_id, solveRequestDto);
+        boolean isCorrect = questionService.solveQuestion(question_id, solveRequestDto);
 
         return ResponseEntity.ok(isCorrect);
     }

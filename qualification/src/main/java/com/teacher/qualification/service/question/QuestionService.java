@@ -44,8 +44,6 @@ public class QuestionService {
     @Autowired
     private AnswerRepository answerRepository;
     @Autowired
-    private UserRepository userRepository; // 사용자 정보를 조회하기 위해
-    @Autowired
     private AnswerHistoryRepository answerHistoryRepository;
     @Autowired
     private UserService userService;
@@ -83,11 +81,11 @@ public class QuestionService {
     }
 
     @Transactional
-    public void deleteQuestion(Long questionId, Long userId) throws IllegalAccessException {
+    public void deleteQuestion(Long questionId) throws IllegalAccessException {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new EntityNotFoundException("이 id를 가진 문제가 없습니다. " + questionId));
-
-        if (!question.getUser().getId().equals(userId)) {
+        User user = userService.findUser();
+        if (!question.getUser().getId().equals(user.getId())) {
             throw new IllegalAccessException("문제를 지울 권한이 없습니다.");
         }
         answerHistoryRepository.deleteByQuestionId(questionId);
@@ -117,7 +115,8 @@ public class QuestionService {
                 question.getQuestionType(),
                 question.getImage(),
                 question.getUpdatedAt(),
-                options
+                options,
+                question.getIsPastExam()
         );
 
         return questionResponseDto;
@@ -175,11 +174,11 @@ public class QuestionService {
     }
 
     @Transactional
-    public boolean solveQuestion(Long questionId, Long userId, SolveRequestDto solveRequestDto) {
+    public boolean solveQuestion(Long questionId, SolveRequestDto solveRequestDto) {
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Question not found"));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = userService.findUser();
+
         Answer answer = question.getAnswer();
 
         // 정답 체크 로직

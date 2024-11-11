@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface QuestionRepository extends JpaRepository<Question, Long> {
-    @Query("SELECT new com.teacher.qualification.dto.question.QuestionListDto(q.id, q.user.nickname, q.title, q.totalPeopleNum, q.totalCorrectPeopleNum, q.updatedAt) FROM Question q")
+    @Query("SELECT new com.teacher.qualification.dto.question.QuestionListDto(q.id, q.user.nickname, q.title, q.totalPeopleNum, q.totalCorrectPeopleNum, q.updatedAt, q.isPastExam) FROM Question q")
     List<QuestionListDto> findAllQuestionsWithStats();
 }

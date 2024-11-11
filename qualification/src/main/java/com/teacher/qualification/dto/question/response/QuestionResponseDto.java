@@ -12,7 +12,8 @@ public record QuestionResponseDto(
         QuestionType questionType,
         String image,
         LocalDateTime updatedAt,
-        List<OptionResponseDto> options
+        List<OptionResponseDto> options,
+        boolean isPasteExam
 ) {
 
 }
