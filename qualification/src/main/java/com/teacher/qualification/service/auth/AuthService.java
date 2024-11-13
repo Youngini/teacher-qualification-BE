@@ -94,7 +94,7 @@ public class AuthService {
     public void sendEmail(String to, String temporaryPassword) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
-        message.setSubject("[우리 앱 이름 뭐더라] 비밀번호 재발급 안내");
+        message.setSubject("[꿈꾸는 임용] 비밀번호 재발급 안내");
         message.setText(
                 "새로 생성된 비밀번호 입니다: " + temporaryPassword + "\n\n해당 비밀번호로 로그인 후 반드시 비밀번호를 변경해 주시기 바랍니다.");
         emailSender.send(message);
