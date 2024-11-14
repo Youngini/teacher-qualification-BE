@@ -63,9 +63,15 @@ public class AuthController {
     }
 
     @PostMapping("/check/phoneNumber")
-    @Operation(summary = "전화번호 중복체크")
+    @Operation(summary = "전화번호 중복체크 - 중복이면 true, 아니면 false")
     public ResponseEntity<CheckDuplicate> checkDuplicatePhone(@RequestBody PhoneNumber phoneNumber) {
         return ResponseEntity.ok(authService.checkDuplicatePhoneNumber(phoneNumber));
+    }
+
+    @PostMapping("/check/email")
+    @Operation(summary = "이메일 중복체크 - 중복이면 true, 아니면 false")
+    public ResponseEntity<CheckDuplicate> checkDuplicatePhone(@RequestBody Email email) {
+        return ResponseEntity.ok(authService.checkDuplicateEmail(email));
     }
 }
 

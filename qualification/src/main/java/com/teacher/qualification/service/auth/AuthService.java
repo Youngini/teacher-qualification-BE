@@ -1,10 +1,7 @@
 package com.teacher.qualification.service.auth;
 
 import com.teacher.qualification.domain.user.User;
-import com.teacher.qualification.dto.auth.CheckDuplicate;
-import com.teacher.qualification.dto.auth.PhoneNumber;
-import com.teacher.qualification.dto.auth.SignupRequestDto;
-import com.teacher.qualification.dto.auth.Token;
+import com.teacher.qualification.dto.auth.*;
 import com.teacher.qualification.repository.user.UserRepository;
 import com.teacher.qualification.service.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
@@ -107,5 +104,9 @@ public class AuthService {
         return new CheckDuplicate(isDuplicate);
     }
 
+    public CheckDuplicate checkDuplicateEmail(Email email) {
+        boolean isDuplicate = userRepository.existsByEmail(email.email());
+        return new CheckDuplicate(isDuplicate);
+    }
 }
 
