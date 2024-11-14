@@ -27,12 +27,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserInfo findUserById(Long id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
-        return new UserInfo(user.getNickname(), user.getPassword(), user.getPhoneNumber(), user.getEmail(), user.getName());
-    }
-
     public boolean deleteUserById() {
         User user = findUser();
         // 사용자가 존재하는 경우, 삭제 수행

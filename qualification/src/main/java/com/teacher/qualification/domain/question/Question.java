@@ -1,5 +1,6 @@
 package com.teacher.qualification.domain.question;
 
+import com.teacher.qualification.domain.user.AnswerHistory;
 import com.teacher.qualification.domain.user.User;
 import com.teacher.qualification.dto.question.request.QuestionRequestDto;
 import jakarta.persistence.*;
@@ -8,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -21,6 +23,7 @@ public class Question {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
     @Lob
     private String title; // 문제 게시글 제목
     @Lob
@@ -35,8 +38,11 @@ public class Question {
     @OneToOne(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
     private Answer answer; // 답 저장
 
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<AnswerHistory> answerHistories; // AnswerHistory와의 관계 설정
+
     private Integer totalPeopleNum; // 사용자들이 문제를 시도한 수
-    private Integer totalCorrectPeopleNum ; // 사용자들이 문제를 맞춘 수
+    private Integer totalCorrectPeopleNum; // 사용자들이 문제를 맞춘 수
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -48,12 +54,9 @@ public class Question {
         this.questionType = questionDto.questionType();
         this.image = questionDto.image();
         this.isPastExam = questionDto.isPastExam();
-
     }
 
-    public Question() {
-
-    }
+    public Question() {}
 
     @PrePersist
     protected void onCreate() {
