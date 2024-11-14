@@ -21,7 +21,7 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("")
+    @GetMapping
     @Operation(summary = "개인정보 불러오기")
     public ResponseEntity<UserInfo> getUserById() {
 
@@ -35,14 +35,14 @@ public class UserController {
         }
     }
 
-    @PutMapping("")
+    @PutMapping
     @Operation(summary = "개인정보 수정")
     public ResponseEntity<User> updateUser(@RequestBody UserUpdateDto userUpdateDto) {
         User updatedUser = userService.updateUser(userUpdateDto);
         return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("")
+    @DeleteMapping
     @Operation(summary = "사용자 삭제")
     public ResponseEntity<?> deleteUserById() {
         boolean isDeleted = userService.deleteUserById();

@@ -43,7 +43,7 @@ public class QuestionController {
         return ResponseEntity.ok(questions);
     }
 
-    @PostMapping("")
+    @PostMapping
     @Operation(summary = "문제 게시글 작성")
     public ResponseEntity<Question> createQuestion(@RequestBody QuestionCreateRequest request) {
         try {
