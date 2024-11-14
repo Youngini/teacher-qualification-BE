@@ -70,8 +70,14 @@ public class AuthController {
 
     @PostMapping("/check/email")
     @Operation(summary = "이메일 중복체크 - 중복이면 true, 아니면 false")
-    public ResponseEntity<CheckDuplicate> checkDuplicatePhone(@RequestBody Email email) {
+    public ResponseEntity<CheckDuplicate> checkDuplicateEmail(@RequestBody Email email) {
         return ResponseEntity.ok(authService.checkDuplicateEmail(email));
+    }
+
+    @PostMapping("/check/nickname")
+    @Operation(summary = "닉네임 중복체크 - 중복이면 true, 아니면 false")
+    public ResponseEntity<CheckDuplicate> checkDuplicateNickname(@RequestBody Nickname nickname) {
+        return ResponseEntity.ok(authService.checkDuplicateNickname(nickname));
     }
 }
 

@@ -108,5 +108,10 @@ public class AuthService {
         boolean isDuplicate = userRepository.existsByEmail(email.email());
         return new CheckDuplicate(isDuplicate);
     }
+
+    public CheckDuplicate checkDuplicateNickname(Nickname nickname) {
+        boolean isDuplicate = userRepository.existsByNickname(nickname.nickname());
+        return new CheckDuplicate(isDuplicate);
+    }
 }
 
