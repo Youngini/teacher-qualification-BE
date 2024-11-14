@@ -61,5 +61,11 @@ public class AuthController {
             return ResponseEntity.status(401).build();
         }
     }
+
+    @PostMapping("/check/phoneNumber")
+    @Operation(summary = "전화번호 중복체크")
+    public ResponseEntity<CheckDuplicate> checkDuplicatePhone(@RequestBody PhoneNumber phoneNumber) {
+        return ResponseEntity.ok(authService.checkDuplicatePhoneNumber(phoneNumber));
+    }
 }
 

@@ -1,6 +1,8 @@
 package com.teacher.qualification.service.auth;
 
 import com.teacher.qualification.domain.user.User;
+import com.teacher.qualification.dto.auth.CheckDuplicate;
+import com.teacher.qualification.dto.auth.PhoneNumber;
 import com.teacher.qualification.dto.auth.SignupRequestDto;
 import com.teacher.qualification.dto.auth.Token;
 import com.teacher.qualification.repository.user.UserRepository;
@@ -99,5 +101,11 @@ public class AuthService {
                 "새로 생성된 비밀번호 입니다: " + temporaryPassword + "\n\n해당 비밀번호로 로그인 후 반드시 비밀번호를 변경해 주시기 바랍니다.");
         emailSender.send(message);
     }
+
+    public CheckDuplicate checkDuplicatePhoneNumber(PhoneNumber phoneNumber) {
+        boolean isDuplicate = userRepository.existsByPhoneNumber(phoneNumber.phoneNumber());
+        return new CheckDuplicate(isDuplicate);
+    }
+
 }
 
