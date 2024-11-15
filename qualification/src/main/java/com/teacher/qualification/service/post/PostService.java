@@ -23,13 +23,16 @@ public class PostService {
 
     // 게시글 반환
     public List<PostListDto> getAllPosts() {
-        return postRepository.findAll().stream().map(post -> new PostListDto(
-                post.getId(),
-                post.getTitle(),
-                post.getUser().getNickname(),
-                post.getUser().getId(),
-                post.getUpdatedAt()
-        )).collect(Collectors.toList());
+        return postRepository.findAll().stream()
+                .filter(post -> post.getUser() != null)  // User가 null인 게시글은 제외
+                .map(post -> new PostListDto(
+                        post.getId(),
+                        post.getTitle(),
+                        post.getUser().getNickname(),
+                        post.getUser().getId(),
+                        post.getUpdatedAt()
+                ))
+                .collect(Collectors.toList());
     }
 
     // 게시글 작성
