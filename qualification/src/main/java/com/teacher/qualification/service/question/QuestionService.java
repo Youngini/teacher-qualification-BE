@@ -54,7 +54,7 @@ public class QuestionService {
     }
 
     @Transactional
-    public Question createQuestion(QuestionCreateRequest request) {
+    public void createQuestion(QuestionCreateRequest request) {
         // 사용자 정보 조회
         User user = userService.findUser();
         QuestionRequestDto questionDto = request.questionDto();
@@ -76,8 +76,6 @@ public class QuestionService {
         // Answer 엔티티 생성 및 저장
         Answer answer = new Answer(question, answerDto);
         answerRepository.save(answer);
-
-        return question;
     }
 
     @Transactional

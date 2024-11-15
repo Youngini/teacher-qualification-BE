@@ -45,10 +45,10 @@ public class QuestionController {
 
     @PostMapping
     @Operation(summary = "문제 게시글 작성")
-    public ResponseEntity<Question> createQuestion(@RequestBody QuestionCreateRequest request) {
+    public ResponseEntity<Void> createQuestion(@RequestBody QuestionCreateRequest request) {
         try {
-            Question question = questionService.createQuestion(request);
-            return ResponseEntity.ok(question);
+            questionService.createQuestion(request);
+            return ResponseEntity.ok().build();
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         } catch (Exception e) {
