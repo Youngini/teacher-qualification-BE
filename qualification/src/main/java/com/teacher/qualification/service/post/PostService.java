@@ -10,6 +10,7 @@ import com.teacher.qualification.repository.post.PostRepository;
 import com.teacher.qualification.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ public class PostService {
     private UserService userService;
 
     // 게시글 반환
+    @Transactional(readOnly = true)
     public List<PostListDto> getAllPosts() {
         return postRepository.findAll().stream()
                 .filter(post -> post.getUser() != null)  // User가 null인 게시글은 제외
@@ -36,6 +38,7 @@ public class PostService {
     }
 
     // 게시글 작성
+    @Transactional
     public void createPost(PostCreateDto request) {
         User user = userService.findUser();
         Post post = new Post(request, user);
@@ -43,6 +46,7 @@ public class PostService {
     }
 
     // 특정 게시물 조희
+    @Transactional(readOnly = true)
     public PostDetailDto getPosts(Long id) {
         return postRepository.findById(id).map(post -> new PostDetailDto(
                 post.getUser().getId(),
@@ -54,6 +58,7 @@ public class PostService {
     }
 
     // 게시글 수정
+    @Transactional
     public void updatePost(Long postId, PostUpdateRequestDto requestDto) {
         Post post = findPostByPostId(postId);
         User user = userService.findUser();
@@ -66,6 +71,7 @@ public class PostService {
     }
 
     // 게시글 삭제
+    @Transactional
     public void deletePost(Long postId) {
         Post post = findPostByPostId(postId);
         User user = userService.findUser();
@@ -77,6 +83,7 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    @Transactional
     public Post findPostByPostId(Long postId) {
         return postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. postId=" + postId));
